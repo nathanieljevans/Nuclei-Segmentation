@@ -10,30 +10,35 @@ This is the experimental segmentation script to explore the 2018 Data Bowl Compe
 
 import os 
 import zipfile
-import cv2
+from scipy import misc
+from matplotlib import pyplot as plt 
 
 def main(): 
     unpack_if_needed()
     
     # plot a few examples 
-    img_path = "unpacked_datasets\train-data\00ae65c1c6631ae6f2be1a449902976e6eb8483bf6b0740d00530220832c6d3e\images\00ae65c1c6631ae6f2be1a449902976e6eb8483bf6b0740d00530220832c6d3e"
-    img = cv2.imread(img_path)
-    cv2.imshow('first cell image!', img)
+    pth = "unpacked_datasets/train-data/"
+    train_dir_names = os.listdir(pth)
+    first_example = pth + train_dir_names[0] + '/images'
+    img_pth = first_example + '/' + os.listdir(first_example)[0]
+    print(img_pth)
+    print(str(os.path.exists(img_pth)))
+    print("----")
+    img = misc.imread(img_pth, mode='RGB')
+    plt.imshow(img)
+    #misc.imshow(img_pth)
     
 
 def unpack_if_needed():
-    print("checking for available datasets")
+    print("checking data state")
     dataset_names = ["stage1_sample_submission.csv.zip", "stage1_test.zip", "stage1_train.zip", "stage1_train_labels.csv.zip"]
     dirs = ["samp", "test", "train-data", "train-labels"]
     target_dir = "unpacked_datasets"
     
     if (not os.path.isdir(target_dir) ):
+        print('data is zipped')
         os.mkdir(target_dir)
         for d, n in zip(dirs, dataset_names):  
-            print(n[0:-4])
-            print(str(not os.path.isdir(target_dir + '/' + n[0:-4])))
-            print(str(not os.path.exists(target_dir + '/' + n[0:-4])))
-            print(str(not os.path.isdir(target_dir + '/' + n[0:-4])) and (not os.path.exists(target_dir + '/' + n[0:-4])))
             print('unpacking data: ' + n)
             zip_ref = zipfile.ZipFile(n, 'r')
             zip_ref.extractall("unpacked_datasets/" + d)
