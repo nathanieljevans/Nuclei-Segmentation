@@ -1,3 +1,6 @@
+# Don't add the unpacked datasets 
+unpacked_datasets
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
