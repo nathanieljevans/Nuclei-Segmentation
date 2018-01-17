@@ -12,9 +12,12 @@ import os
 import zipfile
 from scipy import misc
 from matplotlib import pyplot as plt 
+import numpy as np
 
 def main(): 
     unpack_if_needed()
+    paths = get_example_paths(n=5)
+    print(str(paths[0]))
     
     # plot a few examples 
     pth = "unpacked_datasets/train-data/"
@@ -24,10 +27,26 @@ def main():
     print(img_pth)
     print(str(os.path.exists(img_pth)))
     print("----")
-    img = misc.imread(img_pth, mode='RGB')
-    plt.imshow(img)
+    img = misc.imread(img_pth)
+    plt.imshow(img[:,:,1])
     #misc.imshow(img_pth)
+    print(np.array(img).shape) 
     
+# input
+# n is the number the length of the list to return, how many examples 
+# output 
+# returns list of tuples, tuple holds one example: (img path, list of mask paths)
+def get_example_paths(n=0): 
+    pth = "unpacked_datasets/train-data/"
+    example_paths = []
+    for i, example in enumerate(os.listdir(pth)): 
+        if (n == 0 or i < n):
+            img = pth + example + '/images'
+            mask = pth + example + '/masks' 
+            img_pth = img + '/' + os.listdir(img)[0]
+            mask_pths = list(map(lambda x: mask + '/' + x, os.listdir(mask)))
+            example_paths.append( (img_pth, mask_pths) )
+    return example_paths
 
 def unpack_if_needed():
     print("checking data state")
