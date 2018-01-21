@@ -13,40 +13,81 @@ import zipfile
 from scipy import misc
 from matplotlib import pyplot as plt 
 import numpy as np
+from skimage import filters, segmentation, color, measure
 
 def main(): 
     unpack_if_needed()
-    paths = get_example_paths(n=5)
-    print(str(paths[0]))
+    path_q = get_example_paths(n=0)
     
     # plot a few examples 
-    pth = "unpacked_datasets/train-data/"
-    train_dir_names = os.listdir(pth)
-    first_example = pth + train_dir_names[0] + '/images'
-    img_pth = first_example + '/' + os.listdir(first_example)[0]
-    print(img_pth)
-    print(str(os.path.exists(img_pth)))
-    print("----")
-    img = misc.imread(img_pth)
-    plt.imshow(img[:,:,1])
-    #misc.imshow(img_pth)
-    print(np.array(img).shape) 
+
+    img_tup = load_next_image(path_q) 
+    
+    segmented_img = segment_single_image(img_tup[0])
+    
+# returns tuple containing: (test_img, [mask_imgs])
+def load_next_image(path_q): 
+    path = path_q.get_next() 
+    test_img = misc.imread(path[0])
+    mask_imgs = []
+    for p in path[1]: 
+        mask_imgs.append(misc.imread(p))
+    plt.imshow(test_img[:,:,1])
+    plt.show()
+    return (test_img, mask_imgs)
+
+# takes in img 
+# returns 
+def segment_single_image(img):
+    OFFSET = -0.05
+    img = color.rgb2gray(img)
+    print(filters.threshold_otsu(img))
+    
+    mask = img > filters.threshold_otsu(img) + OFFSET
+    print(np.array(mask).shape)
+    
+    clean_border = segmentation.clear_border(mask)
+    plt.imshow(clean_border, cmap='gray')
+    plt.show()
+    
+    labels = measure.label(mask)
+    print('labels')
+    plt.imshow(labels)
+    
+    return labels
+
+class path_queue: 
+    def __init__(self, img_path, list_of_mask_paths):
+        self.index = 0
+        self.img_path = img_path
+        self.mask_paths = list_of_mask_paths 
+    def get_next(self): 
+        self.index+=1 
+        if (self.index-1 < len(self.img_path)):
+            return (self.img_path[self.index-1], self.mask_paths[self.index-1])
+        else: 
+            print('no paths available')
+            return []
+        
     
 # input
 # n is the number the length of the list to return, how many examples 
 # output 
-# returns list of tuples, tuple holds one example: (img path, list of mask paths)
+# returns queue object, use .get_next() to get tuple (img path, list of mask paths)
 def get_example_paths(n=0): 
     pth = "unpacked_datasets/train-data/"
-    example_paths = []
+    img_paths = []
+    mask_paths = []
     for i, example in enumerate(os.listdir(pth)): 
         if (n == 0 or i < n):
             img = pth + example + '/images'
             mask = pth + example + '/masks' 
             img_pth = img + '/' + os.listdir(img)[0]
             mask_pths = list(map(lambda x: mask + '/' + x, os.listdir(mask)))
-            example_paths.append( (img_pth, mask_pths) )
-    return example_paths
+            img_paths.append(img_pth)
+            mask_paths.append(mask_pths)
+        
+    return path_queue(img_paths, mask_paths)
 
 def unpack_if_needed():
     print("checking data state")
