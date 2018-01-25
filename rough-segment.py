@@ -1,5 +1,3 @@
-#matt dick kong bolte
-
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jan 16 18:36:11 2018
@@ -378,4 +376,3 @@ def unpack_if_needed():
 '''      
 if __name__ == '__main__' :
     main() 
-
