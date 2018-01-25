@@ -13,15 +13,13 @@ This is the experimental segmentation script to explore the 2018 Data Bowl Compe
 # Function description format
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    <descrip>
     ------------
 Inputs: 
     In1: 
-    In2: 
     ------------
 Outputs:     
-    Out1
-    
+    Out1: 
 ''' 
 
 
@@ -92,19 +90,17 @@ Description:
     and returns the images loaded into memory. 
     ------------
 Inputs: 
-    In1: img_info = (img_path, img_id, img_masks_path)
+    In: img_info = (img_path, img_id, img_masks_path)
         img_path = [string] disk path 
         img_id = [string] image identifier 
         img_mask_paths = [list of strings] disk paths to nucleus masks
     ------------
 Outputs:     
-    Out1: img_id, test_img, mask_imgs
+    Out: img_id, test_img, mask_imgs
         img_id = [string] image identifier
         test_img = [np.array] loaded test image from given "img_path" 
         mask_imgs = [list of np.arrays] loaded mask images from given img_mask_paths 
 ''' 
-# img_info = (img_path, img_id, img_masks_path)      
-# returns tuple containing: img_id, test_img, [mask_imgs]
 def load_next_image( img_info ): 
     test_img = misc.imread(img_info[0])
     mask_imgs = []
@@ -117,15 +113,13 @@ def load_next_image( img_info ):
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    This function takes a labeled image and splits it into binary masks representing each seperate object/nucleus
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: labeled_img = [np.array] img mask where pixel values correlate to which mask they belong to 
     ------------
 Outputs:     
-    Out1
-    
+    Out1: mask_imgs = [list of np.arrays] list of mask images representing a single object or nucleus 
 ''' 
 def split_into_single_object_masks(labeled_img): 
     vals = set()
@@ -156,18 +150,20 @@ def split_into_single_object_masks(labeled_img):
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    Takes a (height x width x 4) np.array representing an image and preforms:
+        1. gaussian blur
+        2. otsu threshold with offset 
+        3. object label
+    returns object label of basic segmented image 
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: img = [np.array] H x W x 4 (RGBI) image 
     ------------
 Outputs:     
-    Out1
-    
+    Out1: labels, mask 
+        labels = [np.array] labeled image, pixel values represent object ownership 
+        mask = [np.array] binary image, pixel values represent either background or object
 ''' 
-# takes in img 
-# returns labeled image 
 def segment_single_image(img):
     global sigma
     OFFSET = 0
@@ -190,17 +186,20 @@ def segment_single_image(img):
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    CLASS - a class that holds the image path locations and returns the next 
+    image path info. Usefule to iterate through images without loading them 
+    all into memory at a single moment. 
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: img_path = [string] path location for png image 
+    In2: img_ids = [string] image identifier 
+    In3: list_of_mask_paths = [list of strings] *optional* only applicable for 
+         training images. If applicable, represenst a list of mask paths for 
+         binary nucleus images 
     ------------
 Outputs:     
-    Out1
-    
+    get_next() - returns next tuple of paths in the queue: (img_path, img_id, mask_path)
 ''' 
-#get next returns (img_path, img_id, mask_path)  -> mask_path will be [''] if a test image (none available )
 class path_queue:      
     def __init__(self, img_path, img_ids, list_of_mask_paths=['']):
         self.index = 0
@@ -227,18 +226,20 @@ class path_queue:
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    Run length encoding of an image with top->bottom, left->right numbering 
+    Takes a mask image and returns a list representing pairs of integers where
+    the first value represents the pixel number that starts an object and the 
+    second number in the pair represents the length of 1 values before the next
+    0. 
+    Taken from https://www.kaggle.com/rakhlin/fast-run-length-encoding-python 
+    Thanks rakhlin   
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: x = [np.array] binary mask image representing ONLY 1 OBJECT. 
     ------------
 Outputs:     
-    Out1
-    
-'''     
-# From https://www.kaggle.com/rakhlin/fast-run-length-encoding-python 
-# Thanks rakhlin      
+    Out1: run_length = [list] run-length encoded image
+'''        
 def rle_encoding(x):
     '''
     x: numpy array of shape (height, width), 1 - mask, 0 - background
@@ -256,20 +257,15 @@ def rle_encoding(x):
    
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    Run Length Encoding, performs poor compared to rle_encoding() and fails 
+    occasional situations with large objects <DEPRECATED>
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1:  
     ------------
 Outputs:     
-    Out1
-    
+    Out1: 
 '''      
-# descrip 1 indexed flat image, start run_length 
-#input:  img ID (string)
-    #    mask img of items 
-#output: returns a string of one image
 def create_submission_line(img_ID, mask): 
     output_string = img_ID + ","
     flat_mask = np.array(mask).flatten(order='F')
@@ -292,20 +288,16 @@ def create_submission_line(img_ID, mask):
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    This function gets the training image path locations and returns a path_queue 
+    object. Optionally can specify how many paths to get. 
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: n = [int] Optional -how many image paths to get and return, if none are
+         given then all available paths are returned 
     ------------
 Outputs:     
-    Out1
-    
+    Out1: path_queue object holding training image info
 '''     
-# input
-# n is the number the length of the list to return, how many examples 
-# output 
-# returns queue object, use .get_next() to get tuple (img path, list of mask paths)
 def get_example_paths(n=0): 
     train_pth = "unpacked_datasets/train-data/"
     img_paths = []
@@ -329,15 +321,14 @@ def get_example_paths(n=0):
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    This function gets the test image path locations and returns a path_queue 
+    object. Optionally can specify how many paths to get. 
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: None 
     ------------
 Outputs:     
-    Out1
-    
+    Out1: path_queue object holding test image info
 ''' 
 def get_test_paths(): 
     test_pth = "unpacked_datasets/test/"
@@ -354,15 +345,14 @@ def get_test_paths():
 
 ''' ---------------------------------------------------------------------------< 
 Description: 
-
+    This function checks to see if the necessary datasets have been unpacked and 
+    if they have not, it unpacks them. 
     ------------
 Inputs: 
-    In1: 
-    In2: 
+    In1: None
     ------------
 Outputs:     
-    Out1
-    
+    Out1: None 
 ''' 
 def unpack_if_needed():
     print("checking data state")
@@ -382,10 +372,10 @@ def unpack_if_needed():
         print("dataset already unpacked")
   
 
+
 '''
 --------------------- app run ------------------------
-'''
-          
+'''      
 if __name__ == '__main__' :
     main() 
 
