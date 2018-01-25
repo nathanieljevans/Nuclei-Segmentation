@@ -8,6 +8,21 @@ This is the experimental segmentation script to explore the 2018 Data Bowl Compe
 @author: Nate
 """
 
+# Function description format
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
+
+
 import os 
 import zipfile
 from scipy import misc
@@ -16,6 +31,10 @@ import numpy as np
 from skimage import filters, segmentation, color, measure
 
 sigma = 2
+
+
+
+
 
 def main(): 
     unpack_if_needed()
@@ -64,6 +83,24 @@ def main():
     print('finished, total # of lines (objects): ' + str(lines))
      
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+    This function takes a tuple of values representing an image disk path location
+    and returns the images loaded into memory. 
+    ------------
+Inputs: 
+    In1: img_info = (img_path, img_id, img_masks_path)
+        img_path = [string] disk path 
+        img_id = [string] image identifier 
+        img_mask_paths = [list of strings] disk paths to nucleus masks
+    ------------
+Outputs:     
+    Out1: img_id, test_img, mask_imgs
+        img_id = [string] image identifier
+        test_img = [np.array] loaded test image from given "img_path" 
+        mask_imgs = [list of np.arrays] loaded mask images from given img_mask_paths 
+''' 
 # img_info = (img_path, img_id, img_masks_path)      
 # returns tuple containing: img_id, test_img, [mask_imgs]
 def load_next_image( img_info ): 
@@ -75,6 +112,19 @@ def load_next_image( img_info ):
     #plt.show()
     return img_info[1], test_img, mask_imgs
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
 def split_into_single_object_masks(labeled_img): 
     vals = set()
     mask_imgs = []
@@ -101,6 +151,19 @@ def split_into_single_object_masks(labeled_img):
             mask_imgs.append(new_img)
     return mask_imgs
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
 # takes in img 
 # returns labeled image 
 def segment_single_image(img):
@@ -122,6 +185,19 @@ def segment_single_image(img):
     
     return labels, mask
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
 #get next returns (img_path, img_id, mask_path)  -> mask_path will be [''] if a test image (none available )
 class path_queue:      
     def __init__(self, img_path, img_ids, list_of_mask_paths=['']):
@@ -145,7 +221,20 @@ class path_queue:
             return False
         else: 
             return True
-       
+   
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+'''     
 # From https://www.kaggle.com/rakhlin/fast-run-length-encoding-python 
 # Thanks rakhlin      
 def rle_encoding(x):
@@ -162,7 +251,19 @@ def rle_encoding(x):
         prev = b
     return run_lengths        
         
-        
+   
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+'''      
 # descrip 1 indexed flat image, start run_length 
 #input:  img ID (string)
     #    mask img of items 
@@ -185,7 +286,20 @@ def create_submission_line(img_ID, mask):
                 output_string += str(start + 1) + ' '
     
     return output_string
-        
+    
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+'''     
 # input
 # n is the number the length of the list to return, how many examples 
 # output 
@@ -210,6 +324,19 @@ def get_example_paths(n=0):
     print(str(len(mask_paths)*len(mask_paths[0])))
     return path_queue(img_paths, img_id,  mask_paths)
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
 def get_test_paths(): 
     test_pth = "unpacked_datasets/test/"
     img_paths = []
@@ -222,6 +349,19 @@ def get_test_paths():
         
     return path_queue(img_paths, img_ids)
 
+
+''' ---------------------------------------------------------------------------< 
+Description: 
+
+    ------------
+Inputs: 
+    In1: 
+    In2: 
+    ------------
+Outputs:     
+    Out1
+    
+''' 
 def unpack_if_needed():
     print("checking data state")
     dataset_names = ["stage1_sample_submission.csv.zip", "stage1_test.zip", "stage1_train.zip", "stage1_train_labels.csv.zip"]
@@ -238,7 +378,12 @@ def unpack_if_needed():
             zip_ref.close()
     else: 
         print("dataset already unpacked")
-            
+  
+
+'''
+--------------------- app run ------------------------
+'''
+          
 if __name__ == '__main__' :
     main() 
 
