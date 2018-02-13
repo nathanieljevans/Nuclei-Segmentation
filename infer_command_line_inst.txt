@@ -1,0 +1,16 @@
+Basic command line instruction to execute a single image test on NATEPC - 14009 desktop comp
+
+test img 
+C:\Users\Nate\Documents\GitHub\Nuclei-Segmentation\unpacked_datasets\test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png 
+
+
+model save dir 
+C:\Users\Nate\Documents\GitHub\Tensorflow-Segmentation\save\C7,64,2C7,64,1M2C7,64,2C7,64,1M2C7,64,2C7,64,1M2\2018-02-13_000322
+
+output dir
+C:\Users\Nate\Documents\GitHub\Nuclei-Segmentation\test_cnn_outs 
+
+
+command 
+
+python infer.py --out C:\Users\Nate\Documents\GitHub\Nuclei-Segmentation\test_cnn_outs C:\Users\Nate\Documents\GitHub\Tensorflow-Segmentation\save\C7,64,2C7,64,1M2C7,64,2C7,64,1M2C7,64,2C7,64,1M2\2018-02-13_000322 C:\Users\Nate\Documents\GitHub\Nuclei-Segmentation\unpacked_datasets\test\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732\images\0a849e0eb15faa8a6d7329c3dd66aabe9a294cccb52ed30a90c8ca99092ae732.png
